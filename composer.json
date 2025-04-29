@@ -1,0 +1,16 @@
+{
+    "name": "gogilo/sms-parser-cli",
+    "description": "A CLI tool to extract M-Pesa transactions from SMS XML backups",
+    "type": "project",
+    "license": "MIT",
+    "bin": [
+        "bin/parse-sms"
+    ],
+    "authors": [
+        {
+            "name": "Ogilo G. D. Ouma",
+            "email": "gogilo2003@hotmail.com"
+        }
+    ],
+    "require": {}
+}
