@@ -1,11 +1,9 @@
-I have this php script which I want to turn into a global command I can run to parse sms backup files once installed globaly
-
 #!/usr/bin/env php
 <?php
 
 if ($argc < 2) {
     echo "Usage: php sms_parser.php <sender_name>\n";
-    echo "Example: php sms_parser.php \"STEVE  ODONGO\"\n";
+    echo "Example: php sms_parser.php \"JOHN DOE\"\n";
     exit(1);
 }
 
