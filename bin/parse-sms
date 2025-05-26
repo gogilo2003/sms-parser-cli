@@ -1,103 +1,12 @@
 #!/usr/bin/env php
 <?php
-
-if ($argc < 2) {
-    echo "Usage: php sms_parser.php <sender_name>\n";
-    echo "Example: php sms_parser.php \"JOHN DOE\"\n";
-    exit(1);
+if (file_exists(__DIR__ . '/../../../autoload.php')) {
+    require __DIR__ . '/../../../autoload.php';
+} else {
+    require __DIR__ . '/../vendor/autoload.php';
 }
 
-$senderName = trim($argv[1]);
-$outputFile = 'mpesa_transactions.csv';
-$debugMode = true;
+$app = new Symfony\Component\Console\Application('Laravel Installer', '5.15.0');
+$app->add(new \Gogilo\SmsParserCli\Console\XMLCommand());
 
-$pattern = '/
-    ^([A-Z0-9]{10,})\s+                        # Reference code at the start
-    Confirmed\.You\s+have\s+received\s+Ksh([\d,]+\.\d{2})\s+
-    from\s+(.+?)\s+                            # Sender name
-    (\d{10,12})\s+                             # Sender phone
-    on\s+(\d{1,2}\/\d{1,2}\/\d{2})\s+at\s+(\d{1,2}:\d{2}\s[AP]M)
-/ix';
-
-// Load existing references if file exists
-$seenReferences = [];
-if (file_exists($outputFile)) {
-    if (($handle = fopen($outputFile, 'r')) !== false) {
-        fgetcsv($handle); // Skip header
-        while (($row = fgetcsv($handle)) !== false) {
-            $seenReferences[$row[4]] = true; // Reference is column 4
-        }
-        fclose($handle);
-    }
-}
-
-$csvHandle = fopen($outputFile, 'a'); // Use append mode
-if (filesize($outputFile) === 0) {
-    fputcsv($csvHandle, ['Date', 'Mpesa Reference', 'From Name', 'From Phone', 'Amount']);
-}
-
-$totalMatches = 0;
-$totalDuplicates = 0;
-
-foreach (glob('sms-*.xml') as $filename) {
-    echo "\n\033[1;34mProcessing $filename\033[0m\n";
-
-    $xml = simplexml_load_file($filename);
-    if (!$xml) {
-        echo "! Invalid XML in $filename\n";
-        continue;
-    }
-
-    foreach ($xml->sms as $sms) {
-        if ((string)$sms['address'] !== 'MPESA' || (int)$sms['type'] !== 1) {
-            continue;
-        }
-
-        $body = (string)$sms['body'];
-        if (stripos($body, $senderName) === false) {
-            if ($debugMode) {
-                echo "  \033[0;33mName '$senderName' not found in message:\033[0m\n";
-                echo "  " . substr($body, 0, 80) . "...\n";
-            }
-            continue;
-        }
-
-        echo "  \033[0;32mPotential match found!\033[0m\n";
-
-        if (preg_match($pattern, $body, $matches)) {
-            $reference = $matches[1];
-
-            if (isset($seenReferences[$reference])) {
-                $totalDuplicates++;
-                echo "  \033[0;33mDuplicate reference $reference — Skipping\033[0m\n";
-                continue;
-            }
-
-            $amount = $matches[2];
-            $fromName = trim($matches[3]);
-            $fromPhone = $matches[4];
-            $date = $matches[5] . ' at ' . $matches[6];
-
-            echo "  \033[1;32mMATCHED TRANSACTION:\033[0m\n";
-            echo "    Ref: $reference\n";
-            echo "    From: $fromName\n";
-            echo "    Phone: $fromPhone\n";
-            echo "    Amount: $amount\n";
-            echo "    Date: $date\n";
-
-            fputcsv($csvHandle, [$date, $reference, $fromName, $fromPhone, $amount]);
-            $seenReferences[$reference] = true;
-            $totalMatches++;
-        } else {
-            echo "  \033[0;31mPATTERN DIDN'T MATCH:\033[0m\n";
-            echo "  " . substr($body, 0, 120) . "...\n";
-        }
-    }
-}
-
-fclose($csvHandle);
-
-echo "\n\033[1;35mRESULTS:\033[0m\n";
-echo "- Found $totalMatches new transactions\n";
-echo "- Skipped $totalDuplicates duplicate references\n";
-echo "- Output saved to $outputFile\n";
+$app->run();

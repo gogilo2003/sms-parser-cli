@@ -12,5 +12,28 @@
             "email": "gogilo2003@hotmail.com"
         }
     ],
-    "require": {}
+    "require-dev": {
+        "phpunit/phpunit": "^12.1",
+        "symfony/filesystem": "^7.2",
+        "symfony/process": "^7.2"
+    },
+    "require": {
+        "illuminate/console": "^12.15",
+        "symfony/console": "^7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Gogilo\\SmsParserCli\\Console\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Gogilo\\SmsParserCli\\Console\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
