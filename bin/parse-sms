@@ -33,7 +33,7 @@ if (file_exists($outputFile)) {
 
 $csvHandle = fopen($outputFile, 'a'); // Use append mode
 if (filesize($outputFile) === 0) {
-    fputcsv($csvHandle, ['Date', 'From Name', 'From Phone', 'Amount', 'Mpesa Reference']);
+    fputcsv($csvHandle, ['Date', 'Mpesa Reference', 'From Name', 'From Phone', 'Amount']);
 }
 
 $totalMatches = 0;
