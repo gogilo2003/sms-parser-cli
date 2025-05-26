@@ -75,7 +75,7 @@ class XMLCommand extends Command
 
         $totalMatches = 0;
         $totalDuplicates = 0;
-        $index = 1;
+
         foreach (glob($this->xmlFilePattern) as $filename) {
             $output->writeln("\n<fg=blue>Processing $filename</>");
 
@@ -86,9 +86,6 @@ class XMLCommand extends Command
             }
 
             foreach ($xml->sms as $sms) {
-
-                $output->writeln("Processing SMS #$index");
-                $index += 1;
 
                 if ((string)$sms['address'] !== 'MPESA' || (int)$sms['type'] !== 1) {
                     continue;
@@ -114,7 +111,7 @@ class XMLCommand extends Command
                         continue;
                     }
 
-                    $amount = $matches[2];
+                    $amount = str_replace(",", "", $matches[2]);
                     $fromName = trim($matches[3]);
                     $fromPhone = $matches[4];
                     $date = $matches[5] . ' at ' . $matches[6];
