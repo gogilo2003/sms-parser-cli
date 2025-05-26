@@ -70,7 +70,7 @@ class XMLCommand extends Command
 
         $csvHandle = fopen($outputFile, 'a'); // Use append mode
         if (filesize($outputFile) === 0) {
-            fputcsv($csvHandle, ['Date', 'Mpesa Reference', 'From Name', 'From Phone', 'Amount']);
+            fputcsv($csvHandle, ['Date of Transaction', 'Mpesa Reference', 'From Name', 'From Phone', 'Amount']);
         }
 
         $totalMatches = 0;
@@ -85,7 +85,10 @@ class XMLCommand extends Command
                 continue;
             }
 
-            foreach ($xml->sms as $sms) {
+            foreach ($xml->sms as $key => $sms) {
+
+                $output->writeln("Processing SMS #$key");
+
                 if ((string)$sms['address'] !== 'MPESA' || (int)$sms['type'] !== 1) {
                     continue;
                 }
